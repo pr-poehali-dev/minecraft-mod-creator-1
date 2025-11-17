@@ -226,10 +226,7 @@ const Index = () => {
           </p>
           <div className="flex gap-4 justify-center items-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <Badge variant="outline" className="cyber-border px-4 py-2 text-sm"></Badge>
-            <Badge variant="outline" className="cyber-border px-4 py-2 text-sm">
-              <Icon name="Shield" size={16} className="mr-2" />
-              Проверено антивирусом
-            </Badge>
+            <Badge variant="outline" className="cyber-border px-4 py-2 text-sm"></Badge>
           </div>
         </header>
 
