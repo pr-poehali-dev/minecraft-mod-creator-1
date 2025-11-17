@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Register new user",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Тестовый Игрок",
+        "email": "test@example.com"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "contains",
+      "expectedBodyContains": "success"
+    },
+    {
+      "name": "Validate email required",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Игрок"
+      },
+      "expectedStatus": 400,
+      "bodyMatcher": "contains",
+      "expectedBodyContains": "error"
+    },
+    {
+      "name": "Get user by email",
+      "method": "GET",
+      "path": "/?email=test@example.com",
+      "expectedStatus": 200,
+      "bodyMatcher": "contains",
+      "expectedBodyContains": "user"
+    }
+  ]
+}

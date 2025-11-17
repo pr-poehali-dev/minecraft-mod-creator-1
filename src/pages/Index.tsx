@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 interface Mod {
@@ -16,6 +18,12 @@ interface Mod {
 
 const Index = () => {
   const [installingMod, setInstallingMod] = useState<number | null>(null);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [currentUser, setCurrentUser] = useState<{name: string; email: string} | null>(null);
 
   const mods: Mod[] = [
     {
@@ -81,14 +89,132 @@ const Index = () => {
     }, 2000);
   };
 
+  const handleRegister = async () => {
+    setAuthError('');
+    setIsRegistering(true);
+
+    if (!userName.trim() || !userEmail.trim()) {
+      setAuthError('Заполните все поля');
+      setIsRegistering(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/b0613ca0-7ef5-4581-8ef9-33b2d440ed22', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: userName,
+          email: userEmail
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setCurrentUser({ name: data.user.name, email: data.user.email });
+        localStorage.setItem('user', JSON.stringify({ name: data.user.name, email: data.user.email }));
+        setIsAuthDialogOpen(false);
+        setUserName('');
+        setUserEmail('');
+      } else {
+        setAuthError(data.error || 'Ошибка регистрации');
+      }
+    } catch (error) {
+      setAuthError('Ошибка подключения к серверу');
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('user');
+  };
+
   return (
     <div className="min-h-screen bg-background cyber-grid">
       <div className="fixed top-4 right-4 z-50 animate-fade-in">
-        <Button className="neon-glow hover-glow cyber-border">
-          <Icon name="User" size={20} className="mr-2" />
-          Аккаунт
-        </Button>
+        {currentUser ? (
+          <div className="flex items-center gap-2">
+            <div className="cyber-border bg-card px-4 py-2 rounded-md">
+              <p className="text-sm font-medium">{currentUser.name}</p>
+            </div>
+            <Button variant="outline" className="cyber-border" onClick={handleLogout}>
+              <Icon name="LogOut" size={20} />
+            </Button>
+          </div>
+        ) : (
+          <Button className="neon-glow hover-glow cyber-border" onClick={() => setIsAuthDialogOpen(true)}>
+            <Icon name="User" size={20} className="mr-2" />
+            Аккаунт
+          </Button>
+        )}
       </div>
+
+      <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
+        <DialogContent className="cyber-border bg-card">
+          <DialogHeader>
+            <DialogTitle className="neon-text text-2xl">Регистрация</DialogTitle>
+            <DialogDescription>
+              Создайте аккаунт, чтобы скачивать моды
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium">
+                Имя
+              </label>
+              <Input
+                id="name"
+                placeholder="Введите ваше имя"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="cyber-border"
+                disabled={isRegistering}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                className="cyber-border"
+                disabled={isRegistering}
+              />
+            </div>
+            {authError && (
+              <div className="bg-destructive/20 border border-destructive text-destructive px-3 py-2 rounded-md text-sm">
+                {authError}
+              </div>
+            )}
+            <Button
+              className="w-full neon-glow hover-glow"
+              onClick={handleRegister}
+              disabled={isRegistering}
+            >
+              {isRegistering ? (
+                <>
+                  <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
+                  Регистрация...
+                </>
+              ) : (
+                <>
+                  <Icon name="UserPlus" size={20} className="mr-2" />
+                  Зарегистрироваться
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-16 pt-8">
