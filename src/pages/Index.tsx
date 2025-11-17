@@ -83,6 +83,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background cyber-grid">
+      <div className="fixed top-4 right-4 z-50 animate-fade-in">
+        <Button className="neon-glow hover-glow cyber-border">
+          <Icon name="User" size={20} className="mr-2" />
+          Аккаунт
+        </Button>
+      </div>
+      
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-16 pt-8">
           <h1 className="text-6xl font-black mb-4 neon-text animate-fade-in">
