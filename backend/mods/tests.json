@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Get all mods",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "bodyMatcher": "contains",
+      "expectedBodyContains": "mods"
+    },
+    {
+      "name": "Filter mods by category",
+      "method": "GET",
+      "path": "/?category=Оружие",
+      "expectedStatus": 200,
+      "bodyMatcher": "contains",
+      "expectedBodyContains": "mods"
+    },
+    {
+      "name": "Increment download counter",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "mod_id": 1
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "contains",
+      "expectedBodyContains": "success"
+    }
+  ]
+}
